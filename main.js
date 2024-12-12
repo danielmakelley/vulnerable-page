@@ -1,9 +1,12 @@
+const path = require('node:path');
 const http = require('http');
 const url = require('url');
 const fs = require('fs');
 
 http.createServer((req, res) => {
-    const query = url.parse(req.url, true).query;
+    const inputToSanitize = String(req.url || '').replace('\0', '').replace(/^(\.\.(\/|\\$))+/, '');
+    const safeInput = path.basename(inputToSanitize)
+    const query = url.parse(safeInput, true).query;
 
     // Reflective XSS
     if (query.name) {
